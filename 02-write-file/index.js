@@ -22,13 +22,14 @@ async function writeToFile(entered){
   }
 }
 
-rl.setPrompt('Please enter text:');
+rl.setPrompt('Please enter text or enter "exit" to exit program: ');
 rl.prompt();
 
 rl.on('line', (answer) => {
   if(answer == 'exit'){
+    console.log('Process exited, data has been saved.')
     process.exit(0);
   }
-  writeToFile(answer).then(console.log('data written'));
+  writeToFile(answer).then(console.log('Data written!'));
   rl.prompt();
 })
