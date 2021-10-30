@@ -1,5 +1,3 @@
-const { constants } = require('buffer');
-const { appendFile, writeFile } = require('fs').promises;
 const fs = require('fs');
 const process = require('process');
 const readline = require('readline');
@@ -22,14 +20,19 @@ async function writeToFile(entered){
   }
 }
 
-rl.setPrompt('Please enter text or enter "exit" to exit program: ');
+rl.setPrompt('Please enter text or enter "exit" to exit program: \n');
 rl.prompt();
 
 rl.on('line', (answer) => {
   if(answer == 'exit'){
-    console.log('Process exited, data has been saved.')
+    console.log('Process exited.');
     process.exit(0);
   }
   writeToFile(answer).then(console.log('Data written!'));
   rl.prompt();
-})
+});
+
+rl.on('SIGINT', () => {
+  console.log('Process exited.');
+  process.exit(0);
+});
