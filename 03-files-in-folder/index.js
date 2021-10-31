@@ -1,6 +1,5 @@
 const fs = require('fs').promises;
 const files = require('fs');
-const process = require('process');
 const path = require('path');
 
 
@@ -19,21 +18,7 @@ async function readDirectory(dir){
         console.log('FOLDER');
       }
     })
-
-
-
-
-    /*const name = elem.substring(0,elem.indexOf('.'));
-    const ext = path.extname(elem).substring(1);*/
-    // process.stdout.write(`${name} - ${ext} - 0kb \n`);
-
   }
-}
-
-async function getSize(dir){
-  await file.stat(dir, (err, stats) => {
-    console.log(stats);
-  })
 }
 
 readDirectory(__dirname + '/secret-folder');
