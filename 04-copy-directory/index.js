@@ -3,10 +3,9 @@ const fs = require('fs').promises;
 async function copyDir(directory){
   try{
     await fs.mkdir(__dirname + directory);
-    console.log('Directory successfully created.');
   }
   catch{
-    console.log('The directory already exists.');
+    console.log('Error creating directory!');
   }
   try{
     const files = await fs.readdir(__dirname + '/files');
