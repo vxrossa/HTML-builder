@@ -14,10 +14,8 @@ async function readDirectory(dir){
       const ext = path.extname(file[i].name).substring(1);
       if(ext.length > 0 && file[i].isFile()){
         console.log(`${name} - ${ext} - ${size}kb`);
-      } else {
-        console.log('FOLDER');
       }
-    })
+    });
   }
 }
 
