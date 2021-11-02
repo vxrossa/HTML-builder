@@ -4,13 +4,33 @@ const fs = require('fs');
 const outputDir = __dirname + '/project-dist';
 console.log(outputDir);
 
-async function makeDir(dir){
+async function buildPage(dir){
   try{
-    await fsp.mkdir(__dirname + dir);
+    await fsp.stat(__dirname + dir);
+    console.log('Dist folder found. Updating files.');
+    try{
+      await getAssets('/assets');
+    }
+    catch{
+      console.log('ERROR MOVING ASSETS');
+    }
   }
-  catch{
-    console.log('Error creating dist folder.')
+  catch(err){
+    console.log('Dist folder initialized. Copying files.');
+    await fsp.mkdir(__dirname + '/project-dist');
+    try{
+      await getAssets('/assets');
+    }
+    catch{
+      console.log('ERROR MOVING ASSETS');
+    }
   }
+  // try{
+  //   await fsp.mkdir(__dirname + dir);
+  // }
+  // catch{
+  //   console.log('Error creating dist folder.')
+  // }
 }
 
 async function buildHTML(dir){
@@ -19,40 +39,48 @@ async function buildHTML(dir){
 
 async function buildCSS(dir){
   let cssText = '';
+  const cssFiles = await fsp.readdir(__dirname + dir);
 }
 
 async function getAssets(dir){
-  const files = await fsp.readdir(__dirname + dir, {
-    withFileTypes: true,
-  });
-  console.log(files);
-  for (let elem of files){
-    if(elem.isDirectory()){
-      console.log(elem.name);
-      try{
-        fsp.mkdir(__dirname + `/project-dist/${elem.name}`);
+  try{
+    const files = await fsp.readdir(__dirname + dir, {
+      withFileTypes: true,
+    });
+    for (let elem of files){
+      if(elem.isDirectory()){
+        try{
+          await fsp.stat(__dirname + `/project-dist/${elem.name}`);
+        }
+        catch{
+          await fsp.mkdir(__dirname + `/project-dist/${elem.name}`);
+        }
+        // try{
+        //   fsp.mkdir(__dirname + `/project-dist/${elem.name}`);
+        // }
+        // catch{
+        //   console.log('Error copying files');
+        // }
+        try{
+          const filesinside = await fsp.readdir(__dirname + dir + `/${elem.name}`);
+          filesinside.forEach(fileInside => {
+            fsp.copyFile(__dirname + dir + `/${elem.name}/${fileInside}`,__dirname + `/project-dist/${elem.name}/${fileInside}`);
+          });
+        }
+        catch{
+          console.log('error');
+        }
       }
-      catch{
-        console.log('Error copying files');
+      else{
+        console.log('file!');
       }
-      try{
-        const filesinside = await fsp.readdir(__dirname + dir + `/${elem.name}`);
-        console.log(filesinside);
-        filesinside.forEach(fileInside => {
-          console.log(fileInside);
-          fsp.copyFile(__dirname + dir + `/${elem.name}/${fileInside}`,__dirname + `/project-dist/${elem.name}/${fileInside}`);
-        });
-      }
-      catch{
-        console.log('error');
-      }
-    }
-    else{
-      console.log('file!');
     }
   }
+  catch{
+    console.log('Error reading directory.');
+  }
 }
-makeDir('/project-dist');
+buildPage('/project-dist');
 // buildHTML('/components');
 // buildCSS('/styles');
-getAssets('/assets');
+// getAssets('/assets');
