@@ -1,5 +1,6 @@
 const fsp = require('fs').promises;
 const fs = require('fs');
+const path = require('path');
 
 const outputDir = __dirname + '/project-dist';
 console.log(outputDir);
@@ -39,7 +40,17 @@ async function buildHTML(dir){
 
 async function buildCSS(dir){
   let cssText = '';
-  const cssFiles = await fsp.readdir(__dirname + dir);
+  const cssFiles = await fsp.readdir(__dirname + dir, { withFileTypes: true });
+  cssFiles.forEach(file => {
+    if(file.isFile() && path.extname(file.name) == '.css'){
+      const readStream = fs.createReadStream(__dirname + `/styles/${file.name}`);
+      readStream.on('data', part => {
+        cssText += part;
+        const writeStream = fs.createWriteStream(__dirname + `/project-dist/style.css`,{ flags: 'a' });
+        writeStream.write(cssText);
+      })
+    }
+  })
 }
 
 async function getAssets(dir){
@@ -78,6 +89,13 @@ async function getAssets(dir){
   }
   catch{
     console.log('Error reading directory.');
+  }
+  try{
+    await buildCSS('/styles');
+    console.log('Styles bundled');
+  }
+  catch{
+    console.log('Error bundling styles');
   }
 }
 buildPage('/project-dist');
