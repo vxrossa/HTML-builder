@@ -28,7 +28,7 @@ async function buildPage(dir){
   }
 }
 
-async function buildHTML(dir){
+async function buildHTML(){
   const components = await fsp.readdir(__dirname + '/components', { withFileTypes: true });
   let template = await fsp.readFile(__dirname + '/template.html', 'utf-8');
   for(let i = 0; i < components.length; i++){
@@ -36,7 +36,7 @@ async function buildHTML(dir){
     readStream.on('data', part => {
       template = template.replace(`{{${path.basename(components[i].name, '.html')}}}`,part.toString());
       if(i == components.length - 1){
-        const writeStream = fs.createWriteStream(__dirname + `/project-dist/index.html`,{ flags: 'w'});
+        const writeStream = fs.createWriteStream(__dirname + '/project-dist/index.html',{ flags: 'w'});
         writeStream.write(template);
       }
     });
@@ -51,11 +51,11 @@ async function buildCSS(dir){
       const readStream = fs.createReadStream(__dirname + `/styles/${file.name}`);
       readStream.on('data', part => {
         cssText += part;
-        const writeStream = fs.createWriteStream(__dirname + `/project-dist/style.css`,{ flags: 'w' });
+        const writeStream = fs.createWriteStream(__dirname + '/project-dist/style.css',{ flags: 'w' });
         writeStream.write(cssText);
-      })
+      });
     }
-  })
+  });
 }
 
 async function getAssets(dir){
@@ -66,7 +66,7 @@ async function getAssets(dir){
     for (let elem of files){
       if(elem.isDirectory()){
         try{
-          await fsp.access(__dirname + `/project-dist/assets`);
+          await fsp.access(__dirname + '/project-dist/assets');
         }
         catch(err){
           await fsp.mkdir(__dirname + '/project-dist/assets');
@@ -104,10 +104,10 @@ async function getAssets(dir){
   }
   try{
     await buildHTML('/components');
-    console.log('HTML components bundled.')
+    console.log('HTML components bundled.');
   }
   catch{
-    console.log('Error bundling components.')
+    console.log('Error bundling components.');
   }
 }
 
