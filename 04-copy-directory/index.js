@@ -2,10 +2,11 @@ const fs = require('fs').promises;
 
 async function copyDir(directory){
   try{
-    await fs.mkdir(__dirname + directory);
+    await makeDir(directory);
   }
   catch{
-    console.log('Error creating directory!');
+    await fs.rm(__dirname + directory, { force: true, recursive: true });
+    await makeDir(directory);
   }
   try{
     const files = await fs.readdir(__dirname + '/files');
@@ -22,4 +23,7 @@ async function copyDir(directory){
   }
 }
 
+async function makeDir(direc){
+  await fs.mkdir(__dirname + direc);
+}
 copyDir('/files-copy');
