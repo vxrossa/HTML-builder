@@ -13,7 +13,7 @@ async function buildStyles(dir){
       readStream.on('data', part => {
         copyText += part;
         const writeStream = fs.createWriteStream(__dirname + '/project-dist/bundle.css',{
-          flags: 'a',
+          flags: 'w',
         });
         writeStream.write(copyText);
       });
