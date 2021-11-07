@@ -27,7 +27,7 @@ async function copyAssets(dir) {
   try {
     await createDist('project-dist');
   } catch {
-    console.log('Dist folder found. Updating...')
+    console.log('Dist folder found. Updating...');
   }
   try {
     await getAssets('assets');
@@ -91,7 +91,7 @@ async function buildHTML(dir, src) {
     }
     console.log('HTML components bundled.');
   } catch {
-    console.log('Error bundling HTML.')
+    console.log('Error bundling HTML.');
   }
 }
 
@@ -111,7 +111,7 @@ async function buildCSS(dir, output) {
         writeStream.write(cssText);
       });
     }
-  })
+  });
   console.log('CSS styles bundled.');
 }
 
