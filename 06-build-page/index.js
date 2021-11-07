@@ -66,16 +66,10 @@ async function getAssets(dir){
     for (let elem of files){
       if(elem.isDirectory()){
         try{
-          await fsp.access(__dirname + '/project-dist/assets');
-        }
-        catch(err){
-          await fsp.mkdir(__dirname + '/project-dist/assets');
-        }
-        try{
           await fsp.access(__dirname + `/project-dist${dir}/${elem.name}`);
         }
         catch(err){
-          await fsp.mkdir(__dirname + `/project-dist${dir}/${elem.name}`);
+          await fsp.mkdir(__dirname + `/project-dist${dir}/${elem.name}`, {recursive: true});
         }
         try{
           const filesinside = await fsp.readdir(__dirname + dir + `/${elem.name}`);
