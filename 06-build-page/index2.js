@@ -7,13 +7,6 @@ let dirList = [];
 
 async function getAssets(dir){
   try{
-    await fs.mkdir(path.join(__dirname,'project-dist'));
-  }
-  catch{
-    console.log('error creating dist folder');
-  }
-  try{
-    await fs.stat(path.join(__dirname,dir));
     const files = await fs.readdir(path.join(__dirname,dir), { withFileTypes: true});
     for (let i = 0; i < files.length; i++) {
       if(files[i].isDirectory()){
@@ -24,72 +17,89 @@ async function getAssets(dir){
         filesList.push(`${dir}/${files[i].name}`);
       }
     }
-    await copyAssets('project-dist');
   }
   catch{
-    console.log('error getting assets');
-  }
-  try{
-    await buildHTML('components','template.html');
-  }
-  catch{
-    console.log('error bundling html files');
+    console.log('Error reading assets');
   }
 }
 
 async function copyAssets(dir){
+  try{
+    await getAssets('assets');
+    console.log('Assets folder successfully copied.');
+  }
+  catch{
+    console.log('Error reading assets folder.');
+  }
   for(let i = 0; i < dirList.length; i++){
     try{
       await fs.mkdir(path.join(__dirname,dir,dirList[i]),{ recursive: true });
+    }
+    catch{
+      console.log('Error creating folders.');
+    }
+  }
+  for(let i = 0; i < filesList.length; i++){
+    try{
       await fs.copyFile(
         path.join(__dirname,filesList[i]),
         path.join(__dirname,dir,filesList[i])
       );
     }
     catch{
-      console.log('ERR');
+      console.log('Error copying files to folders.');
     }
   }
 }
 
 async function buildHTML(dir,src){
+  try{
+    await fs.mkdir(path.join(__dirname,'project-dist'));
+    console.log('Dist folder created');
+  }
+  catch{
+    console.log('Dist folder already created.');
+  }
   const components = await fs.readdir(path.join(__dirname,dir), { withFileTypes: true });
-  console.log(components);
 
   let template = await fs.readFile(path.join(__dirname,src),'utf-8');
   try{
     for(let i = 0; i < components.length; i++){
-      const readStream = fss.createReadStream(path.join(__dirname,dir,components[i].name));
-      readStream.on('data',part => {
-        template = template.replace(`{{${path.basename(components[i].name,'.html')}}}`,part);
-        if(i == components.length - 1){
-          console.log('end');
-          const writeStream = fss.createWriteStream(path.join(
-            __dirname,'project-dist','index.html'
-          ), {flags: 'w'});
-          writeStream.write(template);
-        }
-      });
+      if(components[i].isFile() && path.extname(components[i].name) == '.html'){
+        const readStream = fss.createReadStream(path.join(__dirname,dir,components[i].name));
+        readStream.on('data',part => {
+          template = template.replace(`{{${path.basename(components[i].name,'.html')}}}`,part);
+            const writeStream = fss.createWriteStream(path.join(
+              __dirname,'project-dist','index.html'
+            ), {flags: 'w'});
+            writeStream.write(template);
+        });
+      }
     }
+  console.log('HTML components bundled');
   }
   catch{
-    console.log('ERR4')
+    console.log('Error bundling HTML.')
   }
 }
 
-// async function buildHTML(){
-//   const components = await fsp.readdir(__dirname + '/components', { withFileTypes: true });
-//   let template = await fsp.readFile(__dirname + '/template.html', 'utf-8');
-//   for(let i = 0; i < components.length; i++){
-//     const readStream = fs.createReadStream(__dirname + `/components/${components[i].name}`);
-//     readStream.on('data', part => {
-//       template = template.replace(`{{${path.basename(components[i].name, '.html')}}}`,part.toString());
-//       if(i == components.length - 1){
-//         const writeStream = fs.createWriteStream(__dirname + '/project-dist/index.html',{ flags: 'w'});
-//         writeStream.write(template);
-//       }
-//     });
-//   }
-// }
+async function buildCSS(dir,output){
+  let cssText = '';
+  const cssFiles = await fs.readdir(path.join(__dirname,dir), {withFileTypes: true});
+  cssFiles.forEach(file => {
+    if(file.isFile() && path.extname(file.name) == '.css'){
+      const readStream = fss.createReadStream(path.join(__dirname,dir,file.name));
+      readStream.on('data', part => {
+        cssText += part;
+        const writeStream = fss.createWriteStream(path.join(__dirname,'project-dist',output), {flags: 'w'});
+        writeStream.write(cssText);
+      });
+    }
+  })
+  console.log('CSS styles bundled.');
+}
 
-getAssets('assets');
+
+copyAssets('project-dist');
+buildHTML('components','template.html');
+buildCSS('styles','style.css');
