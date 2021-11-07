@@ -25,6 +25,12 @@ async function getAssets(dir){
 
 async function copyAssets(dir){
   try{
+    await createDist('project-dist');
+  }
+  catch{
+    console.log('Dist folder found. Updating...')
+  }
+  try{
     await getAssets('assets');
     console.log('Assets folder successfully copied.');
   }
@@ -52,14 +58,17 @@ async function copyAssets(dir){
   }
 }
 
-async function buildHTML(dir,src){
+async function createDist(src){
   try{
-    await fs.mkdir(path.join(__dirname,'project-dist'));
-    console.log('Dist folder created');
+    await fs.mkdir(path.join(__dirname,src));
   }
   catch{
-    console.log('Dist folder already created.');
+    await fs.rm(path.join(__dirname,'project-dist'),{ recursive: true, force: true });
+    await fs.mkdir(path.join(__dirname,src));
   }
+}
+
+async function buildHTML(dir,src){
   const components = await fs.readdir(path.join(__dirname,dir), { withFileTypes: true });
 
   let template = await fs.readFile(path.join(__dirname,src),'utf-8');
@@ -76,7 +85,7 @@ async function buildHTML(dir,src){
         });
       }
     }
-  console.log('HTML components bundled');
+  console.log('HTML components bundled.');
   }
   catch{
     console.log('Error bundling HTML.')
@@ -103,3 +112,4 @@ async function buildCSS(dir,output){
 copyAssets('project-dist');
 buildHTML('components','template.html');
 buildCSS('styles','style.css');
+
