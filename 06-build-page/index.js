@@ -54,6 +54,12 @@ async function copyAssets(dir) {
       console.log('Error copying files to folders.');
     }
   }
+  try{
+    await buildCSS('styles','style.css');
+  }
+  catch{
+    console.log('error building css');
+  }
 }
 
 async function createDist(src) {
@@ -61,8 +67,8 @@ async function createDist(src) {
     await fs.mkdir(path.join(__dirname, src));
   } catch {
     await fs.rm(path.join(__dirname, 'project-dist'), {
+      force: true,
       recursive: true,
-      force: true
     });
     await fs.mkdir(path.join(__dirname, src));
   }
@@ -72,7 +78,6 @@ async function buildHTML(dir, src) {
   const components = await fs.readdir(path.join(__dirname, dir), {
     withFileTypes: true
   });
-
   let template = await fs.readFile(path.join(__dirname, src), 'utf-8');
   try {
     for (let i = 0; i < components.length; i++) {
@@ -115,7 +120,6 @@ async function buildCSS(dir, output) {
   console.log('CSS styles bundled.');
 }
 
-
 copyAssets('project-dist');
 buildHTML('components', 'template.html');
-buildCSS('styles', 'style.css');
+// buildCSS('styles', 'style.css');
