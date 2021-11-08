@@ -7,18 +7,24 @@ async function buildStyles(dir) {
   const files = await fsp.readdir(dir, {
     withFileTypes: true,
   });
-  files.forEach(file => {
-    if (file.isFile() && path.extname(file.name) == '.css') {
-      const readStream = fs.createReadStream(__dirname + `/styles/${file.name}`);
-      readStream.on('data', part => {
-        copyText += part;
-        const writeStream = fs.createWriteStream(__dirname + '/project-dist/bundle.css', {
-          flags: 'w',
+  try{
+    files.forEach(file => {
+      if (file.isFile() && path.extname(file.name) == '.css') {
+        const readStream = fs.createReadStream(__dirname + `/styles/${file.name}`);
+        readStream.on('data', part => {
+          copyText += part;
+          const writeStream = fs.createWriteStream(__dirname + '/project-dist/bundle.css', {
+            flags: 'w',
+          });
+          writeStream.write(copyText);
         });
-        writeStream.write(copyText);
-      });
-    }
-  });
+      }
+    });
+  console.log('CSS styles successfully bundled.');
+  }
+  catch{
+    console.log('Error bundling styles.');
+  }
 }
 
 buildStyles(__dirname + '/styles');
